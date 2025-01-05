@@ -3,6 +3,7 @@ package com.uexcel.regular.service.impl;
 import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.controller.RegularRoomController;
 import com.uexcel.regular.dto.FreeRoomsDto;
+import com.uexcel.regular.exception.AppExceptions;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.persistence.ReservationRepository;
 import com.uexcel.regular.service.IReservationService;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -65,7 +67,8 @@ public class IReservationServiceImpl implements IReservationService {
     @Override
     public List<FreeRoomsDto> getFreeRoomsByDays(Integer days) {
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
-            throw  new RuntimeException("Environment property 'NUMBER_OF_ROOMS' not set.");
+            throw  new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                    "Fail", "Environment property 'NUMBER_OF_ROOMS' not set.");
         }
         int numberOfRooms =Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
         List<Reservation> reservations = reservationRepository.findAll();
