@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter @Setter
 @AllArgsConstructor
-public class FreeRoomsDto {
+public class DateRoomsDto {
     private LocalDate date;
-    private  int numberOfRoomsAvailable;
+    private  int numberOfRooms;
 }

@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
-public class BookDates {
+public class ReservationDates {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
