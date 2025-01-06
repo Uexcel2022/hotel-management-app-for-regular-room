@@ -1,10 +1,7 @@
 package com.uexcel.regular.service.impl;
 
 import com.uexcel.regular.constants.Month;
-import com.uexcel.regular.dto.DateRoomsDto;
-import com.uexcel.regular.dto.FreeRoomsDto;
-import com.uexcel.regular.dto.ReservationDto;
-import com.uexcel.regular.dto.ReservationResponseDto;
+import com.uexcel.regular.dto.*;
 import com.uexcel.regular.exception.AppExceptions;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
@@ -13,6 +10,8 @@ import com.uexcel.regular.persistence.ReservationRepository;
 import com.uexcel.regular.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ public class IReservationServiceImpl implements IReservationService {
     private  final ReservationDateRepository reservationDateRepository;
     private final Month month;
     private final Environment environment;
+    private final Logger logger = LoggerFactory.getLogger(IReservationServiceImpl.class);
     @Override
     public List<FreeRoomsDto> getFreeRoomsByMonth(String monthNAme) {
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
@@ -170,6 +170,34 @@ public class IReservationServiceImpl implements IReservationService {
                 .orElseThrow(()->new AppExceptions(HttpStatus.NOT_FOUND.value(),
                         "Not Found","Reservation not found for the given id: "+id));
         return reservations;
+    }
+
+    @Override
+    public ResponseDto deletePastReservations(){
+            List<Reservation> reservations = reservationRepository.findAll();
+            if (reservations.isEmpty()) {
+                return new ResponseDto(HttpStatus.NOT_FOUND.value(),
+                        "Not Found", "No reservation found");
+            }
+            for (Reservation r : reservations) {
+                List<ReservationDates> reservationDatesDate = r.getReservationDates();
+                int rSize = reservationDatesDate.size();
+                if(rSize==0){
+                    reservationRepository.deleteById(r.getId());
+                    logger.info("******* {} **************", r.getId());
+                }
+                for (ReservationDates resDate : reservationDatesDate) {
+                    if (LocalDate.now().isAfter(resDate.getDate())) {
+                        reservationDateRepository.deleteById(resDate.getId());
+                            if(rSize==1){
+                                reservationRepository.deleteById(r.getId());
+                                logger.info("*******{}***************", r.getId());
+                            }
+                    }
+                }
+            }
+        return new ResponseDto(HttpStatus.OK.value(),
+                "Ok", "Reservation deleted successfully.");
     }
 
 }

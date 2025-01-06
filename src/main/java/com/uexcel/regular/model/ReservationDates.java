@@ -15,6 +15,6 @@ public class ReservationDates {
     private Long id;
     private LocalDate date;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToOne(optional = false,cascade = jakarta.persistence.CascadeType.PERSIST,fetch = FetchType.EAGER)
+    @ManyToOne(optional = false,cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     private Reservation reservation;
 }

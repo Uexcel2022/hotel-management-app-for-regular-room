@@ -3,6 +3,7 @@ package com.uexcel.regular.controller;
 import com.uexcel.regular.dto.FreeRoomsDto;
 import com.uexcel.regular.dto.ReservationDto;
 import com.uexcel.regular.dto.ReservationResponseDto;
+import com.uexcel.regular.dto.ResponseDto;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.service.IReservationService;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,12 @@ public class ReservationController {
     public ResponseEntity<ReservationResponseDto> saveReservation(@RequestBody ReservationDto reservationDto){
       ReservationResponseDto rRDto =  reservationService.saveReservation(reservationDto);
       return ResponseEntity.status(rRDto.getStatus()).body(rRDto);
+    }
+
+    @DeleteMapping("/reservation")
+    private ResponseEntity<ResponseDto> deleteReservation(){
+        ResponseDto rs = reservationService.deletePastReservations();
+        return  ResponseEntity.status(rs.getStatus()).body(rs);
     }
 
 }
