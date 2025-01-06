@@ -1,6 +1,7 @@
 package com.uexcel.regular.exception;
 
 import com.uexcel.regular.dto.ErrorResponseDto;
+import com.uexcel.regular.dto.ReservedErrorResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -35,6 +36,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleAppException(AppExceptions ex, WebRequest request) {
         return ResponseEntity.status(ex.getStatus()).body(new ErrorResponseDto(getTime(),ex.getStatus(),
                      ex.getDescription(), ex.getMessage(),request.getDescription(false))
+        );
+    }
+
+    @ExceptionHandler(ReservedRoomException.class)
+    public ResponseEntity<ReservedErrorResponseDto>
+    handleReservedRoomException(ReservedRoomException ex, WebRequest request) {
+        return ResponseEntity.status(400).body(new ReservedErrorResponseDto(getTime(),400,
+                "Bad Request", ex.getMessage(),ex.getDateRooms(),request.getDescription(false))
         );
     }
 

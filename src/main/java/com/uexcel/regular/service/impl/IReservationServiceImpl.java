@@ -3,10 +3,13 @@ package com.uexcel.regular.service.impl;
 import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.dto.*;
 import com.uexcel.regular.exception.AppExceptions;
+import com.uexcel.regular.exception.ReservedRoomException;
+import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.ReservationDateRepository;
 import com.uexcel.regular.persistence.ReservationRepository;
+import com.uexcel.regular.service.IRegularRoomService;
 import com.uexcel.regular.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -24,6 +27,7 @@ import java.util.List;
 public class IReservationServiceImpl implements IReservationService {
     private  final ReservationRepository reservationRepository;
     private  final ReservationDateRepository reservationDateRepository;
+    private  final IRegularRoomService regularRoomService;
     private final Month month;
     private final Environment environment;
     private final Logger logger = LoggerFactory.getLogger(IReservationServiceImpl.class);
@@ -109,6 +113,14 @@ public class IReservationServiceImpl implements IReservationService {
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
             throw  new RuntimeException("Environment property 'NUMBER_OF_ROOMS' not set.");
         }
+        List<DateRoomsDto> dateRoomsDtos = new ArrayList<>();
+        /*
+             Getting previous booking from DB by Date. Each date represents booking per room
+             The total number of date of same day represents total reserved room for the given date.
+             If the total equal the total number of room then all the rooms are reserved on that date.
+             Else if the total number + the intended reservations exceeds the number of room for the given date,
+             or any of the rooms mentioned is reserved on same date reservation fails else it passes.
+         */
         int numberOfRooms =Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
         List<FreeRoomsDto> unAvailableDates = new ArrayList<>();
         DateRoomsDto booking;
@@ -120,7 +132,8 @@ public class IReservationServiceImpl implements IReservationService {
                continue;
            }
            int reservations = reservedDates.size();
-           int  intendToBeReserved = booking.getNumberOfRooms();
+//           int  intendToBeReserved = booking.getNumberOfRooms();
+            int intendToBeReserved = booking.getRooms().size();
            if(numberOfRooms - (reservations + intendToBeReserved) < 0){
                unAvailableDates.add(
                        new FreeRoomsDto(booking.getDate(),(numberOfRooms-reservations)));
@@ -145,13 +158,24 @@ public class IReservationServiceImpl implements IReservationService {
        }
         List<ReservationDates> reservationDates = new ArrayList<>();
         reservationDto.getDates().forEach(res -> {
-            for(int i = 0;i< res.getNumberOfRooms();i++) {
+            for(int i = 0; i< res.getRooms().size(); i++) {
                 ReservationDates reservationDate = new ReservationDates();
                 reservationDate.setDate(res.getDate());
                 reservationDate.setReservation(savedReservation);
+                RegularRoom room =
+                        regularRoomService.getRegularRoomByRoomNumber(res.getRooms().get(i));
+
+                if(room.getReservationDates().stream().anyMatch(v->v.getDate().equals(res.getDate())) )
+                {
+                    dateRoomsDtos.add(new DateRoomsDto(res.getDate(),List.of(res.getRooms().get(i))));
+                }
+                reservationDate.setRegularRoom(room);
                 reservationDates.add(reservationDate);
             }
         });
+        if(dateRoomsDtos.size() > 0){
+            throw new ReservedRoomException(dateRoomsDtos);
+        }
       List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);
         for(ReservationDates rs : savedResDates){
             if(rs.getId() ==null){

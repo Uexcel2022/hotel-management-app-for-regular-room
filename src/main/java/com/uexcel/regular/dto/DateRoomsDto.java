@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter @Setter
 @AllArgsConstructor
 public class DateRoomsDto {
     private LocalDate date;
-    private  int numberOfRooms;
+    private List<String> Rooms;
 }

@@ -13,7 +13,7 @@ public class ReservationMApper {
         reservation.setPhone(reservationDto.getPhone());
         List<ReservationDates> reservationDates = new ArrayList<>();
         reservationDto.getDates().forEach(res -> {
-            for(int i = 0;i< res.getNumberOfRooms();i++) {
+            for(int i = 0; i< res.getRooms().size(); i++) {
             }
         });
         return  reservation;

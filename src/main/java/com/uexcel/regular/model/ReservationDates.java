@@ -18,7 +18,6 @@ public class ReservationDates {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(optional = false,cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     private Reservation reservation;
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne(optional = false,cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinColumn(name = "roomNumber",referencedColumnName = "roomNumber",
