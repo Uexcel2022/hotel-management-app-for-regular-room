@@ -38,7 +38,7 @@ public class IReservationServiceImpl implements IReservationService {
         List<FreeRoomsDto> freeRoomsDtoList =  new ArrayList<>();
         List<LocalDate> monthDates = new ArrayList<>();
         for(Reservation reservation : reservations){
-            reservation.getReservationDates().stream()
+            reservation.getReservationDates()
                     .forEach(reservedDate->reservedDates.add(reservedDate.getDate()));
         }
         reservedDates.sort(LocalDate::compareTo);
@@ -53,7 +53,7 @@ public class IReservationServiceImpl implements IReservationService {
         for(int i = 0; i < mothLength; i ++){
             LocalDate date = monthStartDate.plusDays(i);
             if(monthDates.contains(date) && !freeRoomsDtoList.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
-                int numberOfRoomsReserved = (int) monthDates.stream().filter(present->present.equals(date)).toList().stream().count();
+                int numberOfRoomsReserved = monthDates.stream().filter(present->present.equals(date)).toList().size();
                 int freeRooms = numberOfRooms - numberOfRoomsReserved;
                 if(freeRooms > 0) {
                     freeRoomsDtoList.add(new FreeRoomsDto(date,freeRooms));
@@ -81,7 +81,7 @@ public class IReservationServiceImpl implements IReservationService {
         List<LocalDate> reserveDates = new ArrayList<>();
         List<FreeRoomsDto> freeRoomsDtoList =  new ArrayList<>();
         for(Reservation reservation : reservations){
-            reservation.getReservationDates().stream()
+            reservation.getReservationDates()
                     .forEach(bd-> reserveDates.add(bd.getDate()));
         }
         reserveDates.sort(LocalDate::compareTo);
@@ -89,7 +89,7 @@ public class IReservationServiceImpl implements IReservationService {
         for(int i = 0; i < numberOfDays; i++){
             LocalDate date = LocalDate.now().plusDays(i);
             if(!freeRoomsDtoList.contains(date) && reserveDates.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
-                int numberOfRoomsReserved = (int) reserveDates.stream().filter(present->present.equals(date)).toList().stream().count();
+                int numberOfRoomsReserved = (int) reserveDates.stream().filter(present->present.equals(date)).toList().size();
                 int freeRooms = numberOfRooms - numberOfRoomsReserved;
                 if(freeRooms > 0) {
                     freeRoomsDtoList.add(new FreeRoomsDto(date,freeRooms));
@@ -166,10 +166,9 @@ public class IReservationServiceImpl implements IReservationService {
 
     @Override
     public Reservation findReservationById(Long id) {
-        Reservation reservations = reservationRepository.findById(id)
+        return reservationRepository.findById(id)
                 .orElseThrow(()->new AppExceptions(HttpStatus.NOT_FOUND.value(),
                         "Not Found","Reservation not found for the given id: "+id));
-        return reservations;
     }
 
     @Override

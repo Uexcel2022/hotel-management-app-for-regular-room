@@ -17,5 +17,6 @@ public interface ReservationDateRepository extends JpaRepository<ReservationDate
     @Transactional
     @Modifying
     @Query(nativeQuery = true,value = "delete from reservation_dates where id = ?")
+    @Override
     void deleteById(@Param("id") Long id);
 }
