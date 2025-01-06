@@ -121,7 +121,7 @@ public class IReservationServiceImpl implements IReservationService {
            }
            int reservations = reservedDates.size();
            int  intendToBeReserved = booking.getNumberOfRooms();
-           if(numberOfRooms - (reservations+intendToBeReserved) < 0){
+           if(numberOfRooms - (reservations + intendToBeReserved) < 0){
                unAvailableDates.add(
                        new FreeRoomsDto(booking.getDate(),(numberOfRooms-reservations)));
            }
@@ -156,7 +156,7 @@ public class IReservationServiceImpl implements IReservationService {
         for(ReservationDates rs : savedResDates){
             if(rs.getId() ==null){
                 throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-                        "Fail", "Fail to save reservation dates");
+                        "Fail", "Fail to save reservation dates.");
             }
         }
         return new ReservationResponseDto(
