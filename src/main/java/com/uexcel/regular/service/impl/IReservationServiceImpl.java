@@ -183,14 +183,12 @@ public class IReservationServiceImpl implements IReservationService {
                 int rSize = reservationDatesDate.size();
                 if(rSize==0){
                     reservationRepository.deleteById(r.getId());
-                    logger.info("******* {} **************", r.getId());
                 }
                 for (ReservationDates resDate : reservationDatesDate) {
                     if (LocalDate.now().isAfter(resDate.getDate())) {
                         reservationDateRepository.deleteById(resDate.getId());
                             if(rSize==1){
                                 reservationRepository.deleteById(r.getId());
-                                logger.info("*******{}***************", r.getId());
                             }
                     }
                 }
