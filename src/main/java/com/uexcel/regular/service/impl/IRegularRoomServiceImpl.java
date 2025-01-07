@@ -71,10 +71,9 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
 
         availableRoomsDto.sort(Comparator.comparing(AvailableRoomsDto::getDate));
 
-        Map<String,List<AvailableRoomsDto>> sortedResult =
-                availableRoomsDto.stream().collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
+             return   availableRoomsDto.stream().
+                     collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
 
-        return sortedResult;
     }
 
     @Override
@@ -88,7 +87,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
             monthDate = month.getStartDate(monthName.toUpperCase());
         }
         LocalDate now = LocalDate.now();
-        if(monthDate.equals("DECEMBER") && monthName != null
+        if(monthDate.getMonth().equals("DECEMBER") && monthName != null
                 && monthName.equalsIgnoreCase("JANUARY")){
             monthDate =  LocalDate.of(now.getYear()+1,1,1);
         }
@@ -133,10 +132,9 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
 
         availableRoomsDto.sort(Comparator.comparing(AvailableRoomsDto::getDate));
 
-        Map<String,List<AvailableRoomsDto>> sortedResult =
-                availableRoomsDto.stream().collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
+           return   availableRoomsDto.stream()
+                   .collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
 
-        return sortedResult;
     }
 
 }

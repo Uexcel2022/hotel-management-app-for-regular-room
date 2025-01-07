@@ -56,7 +56,7 @@ public class IReservationServiceImpl implements IReservationService {
             }
         }
 
-        if("monthStartDate".equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
+        if(monthStartDate.equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
             monthStartDate =  LocalDate.of(now.getYear()+1,1,1);
         }
 
