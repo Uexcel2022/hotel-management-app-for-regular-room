@@ -88,9 +88,8 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
         }else {
             monthDate = month.getStartDate(monthName.toUpperCase());
         }
-        String  a = "DECEMBER";
         LocalDate now = LocalDate.now();
-        if(a.equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
+        if(monthDate.equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
             monthDate =  LocalDate.of(now.getYear()+1,1,1);
         }
         if(monthDate.getDayOfYear() < now.getDayOfYear() && monthDate.getYear()==now.getYear()){

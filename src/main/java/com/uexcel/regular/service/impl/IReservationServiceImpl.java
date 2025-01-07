@@ -13,8 +13,7 @@ import com.uexcel.regular.service.IRegularRoomService;
 import com.uexcel.regular.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class IReservationServiceImpl implements IReservationService {
@@ -30,9 +30,10 @@ public class IReservationServiceImpl implements IReservationService {
     private  final IRegularRoomService regularRoomService;
     private final Month month;
     private final Environment environment;
-    private final Logger logger = LoggerFactory.getLogger(IReservationServiceImpl.class);
+
     @Override
-    public List<FreeRoomsDto> getFreeRoomsByMonth(String monthNAme) {
+    public List<FreeRoomsDto> getFreeRoomsByMonth(String monthName) {
+        LocalDate now = LocalDate.now();
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
             throw  new RuntimeException("Environment property 'NUMBER_OF_ROOMS' not set.");
         }
@@ -46,14 +47,28 @@ public class IReservationServiceImpl implements IReservationService {
                     .forEach(reservedDate->reservedDates.add(reservedDate.getDate()));
         }
         reservedDates.sort(LocalDate::compareTo);
-        LocalDate monthStartDate = month.getStartDate(monthNAme);
+        LocalDate monthStartDate = month.getStartDate(monthName.toUpperCase());
+
         for(int i = 0; i < reservedDates.size(); i++){
             LocalDate monthDate = reservedDates.get(i);
             if(monthDate.getMonth().equals(monthStartDate.getMonth())){
                 monthDates.add(monthDate);
             }
         }
+
+        if("monthStartDate".equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
+            monthStartDate =  LocalDate.of(now.getYear()+1,1,1);
+        }
+
+        if(monthStartDate.getDayOfYear() < now.getDayOfYear() && monthStartDate.getYear() == now.getYear()
+                && ! monthStartDate.getMonth().equals(now.getMonth())){
+            throw new AppExceptions(HttpStatus.BAD_REQUEST.value(),
+                    "Bad Request","The desired month is not available."
+            );
+        }
+
         int mothLength = monthStartDate.lengthOfMonth();
+
         for(int i = 0; i < mothLength; i ++){
             LocalDate date = monthStartDate.plusDays(i);
             if(monthDates.contains(date) && !freeRoomsDtoList.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
