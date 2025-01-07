@@ -108,7 +108,7 @@ public class IReservationServiceImpl implements IReservationService {
         for(int i = 0; i < numberOfDays; i++){
             LocalDate date = LocalDate.now().plusDays(i);
             if(!freeRoomsDtoList.contains(date) && reserveDates.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
-                int numberOfRoomsReserved = (int) reserveDates.stream().filter(present->present.equals(date)).toList().size();
+                int numberOfRoomsReserved =  reserveDates.stream().filter(present->present.equals(date)).toList().size();
                 int freeRooms = numberOfRooms - numberOfRoomsReserved;
                 if(freeRooms > 0) {
                     freeRoomsDtoList.add(new FreeRoomsDto(date,freeRooms));

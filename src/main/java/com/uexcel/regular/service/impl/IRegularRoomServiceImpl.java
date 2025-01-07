@@ -8,8 +8,7 @@ import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.RegularRoomRepository;
 import com.uexcel.regular.service.IRegularRoomService;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -89,7 +88,8 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
             monthDate = month.getStartDate(monthName.toUpperCase());
         }
         LocalDate now = LocalDate.now();
-        if(monthDate.equals("DECEMBER") && monthName != null && monthName.toUpperCase().equals("JANUARY")){
+        if(monthDate.equals("DECEMBER") && monthName != null
+                && monthName.equalsIgnoreCase("JANUARY")){
             monthDate =  LocalDate.of(now.getYear()+1,1,1);
         }
         if(monthDate.getDayOfYear() < now.getDayOfYear() && monthDate.getYear()==now.getYear()){

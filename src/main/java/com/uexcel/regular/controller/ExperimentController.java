@@ -1,10 +1,6 @@
 package com.uexcel.regular.controller;
 
-import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.dto.AvailableRoomsDto;
-import com.uexcel.regular.model.RegularRoom;
-import com.uexcel.regular.model.ReservationDates;
-import com.uexcel.regular.persistence.RegularRoomRepository;
 import com.uexcel.regular.service.IRegularRoomService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
