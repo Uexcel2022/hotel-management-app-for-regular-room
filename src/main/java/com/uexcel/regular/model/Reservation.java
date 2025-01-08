@@ -20,5 +20,4 @@ public class Reservation {
     private String description;
     @OneToMany(mappedBy = "reservation",fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
     private List<ReservationDates> reservationDates;
-
 }

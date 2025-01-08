@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.Date;
 @Getter @Setter
-public class CheckinDto {
+public class CheckinRequestDto {
     @NotNull(message = "Room number is required.")
     @Pattern(regexp = "R[0-9]{3}",message = "In valid room number.")
     private  String roomNumber;

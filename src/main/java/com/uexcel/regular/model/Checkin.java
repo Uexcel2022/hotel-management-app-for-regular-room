@@ -15,8 +15,8 @@ public class Checkin {
     private String name;
     private String phone;
     private double amount;
-    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER,optional = false)
-    @JoinColumn(name = "room_number",referencedColumnName = "roomNumber",foreignKey =
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER,optional = false)
+    @JoinColumn(name = "room_number", referencedColumnName = "roomNumber",foreignKey =
     @ForeignKey(name = "FK_CHECKIN_REGULAR"))
     private RegularRoom regularRoom;
 }

@@ -20,8 +20,8 @@ public class ReservationController {
     private final IReservationService reservationService;
 
     @GetMapping("/reservation")
-    public ResponseEntity<Reservation>bookRegularRoom(@RequestParam Long id){
-       Reservation reservations = reservationService.findReservationById(id);
+    public ResponseEntity<Reservation>getReservationByPhone(@RequestParam String phone){
+       Reservation reservations = reservationService.findByPhone(phone);
         return ResponseEntity.ok(reservations);
     }
     @GetMapping("/days")

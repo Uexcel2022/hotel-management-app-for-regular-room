@@ -1,6 +1,7 @@
 package com.uexcel.regular.controller;
 
-import com.uexcel.regular.dto.CheckinDto;
+import com.uexcel.regular.dto.CheckinRequestDto;
+import com.uexcel.regular.dto.CheckinResponseDto;
 import com.uexcel.regular.dto.ResponseDto;
 import com.uexcel.regular.service.ICheckinService;
 import jakarta.validation.Valid;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @Validated
@@ -18,14 +21,21 @@ import org.springframework.web.bind.annotation.*;
 public class CheckinController {
     private  final ICheckinService checkinService;
     @PostMapping
-    public ResponseEntity<ResponseDto> checkin(@Valid @RequestBody CheckinDto checkinDto) {
-        ResponseDto rs = checkinService.checkin(checkinDto);
+    public ResponseEntity<ResponseDto> checkin(@Valid @RequestBody CheckinRequestDto checkinRequestDto) {
+        ResponseDto rs = checkinService.checkin(checkinRequestDto);
+        return new ResponseEntity<>(rs, HttpStatus.CREATED);
+    }
+    @PutMapping("/{checkinId}")
+    public ResponseEntity<ResponseDto> checkout(@PathVariable Long checkinId) {
+        ResponseDto rs = checkinService.checkout(checkinId);
         return new ResponseEntity<>(rs, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{roomNumber}")
-    public ResponseEntity<ResponseDto> checkout(@PathVariable String roomNumber) {
-        ResponseDto rs = checkinService.checkout(roomNumber);
-        return new ResponseEntity<>(rs, HttpStatus.CREATED);
+    @GetMapping
+    public ResponseEntity<List<CheckinResponseDto>> getCheckins(
+            @RequestParam(required = false) String roomNumber){
+        List<CheckinResponseDto> result = checkinService.getCheckin(roomNumber);
+        return new ResponseEntity<>(result,HttpStatus.OK);
     }
+
 }

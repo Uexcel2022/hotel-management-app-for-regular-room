@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     @Transactional
@@ -17,4 +19,6 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     @Query(nativeQuery = true,value = "delete from reservation where id = ?")
     @Override
     void deleteById(@Param("id") Long id);
+
+    Reservation findReservationByPhone(String roomNumber);
 }

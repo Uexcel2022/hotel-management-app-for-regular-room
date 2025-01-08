@@ -29,7 +29,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
                 regularRoomRepository.findByRoomNumber(roomNumber);
         if (regularRoom == null) {
             throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                    "Not Fount","No regular room found for room number: " + roomNumber
+                    "Not Found","No regular room found for room number: " + roomNumber
             );
         }
         return regularRoom;
@@ -73,7 +73,6 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
 
              return   availableRoomsDto.stream().
                      collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
-
     }
 
     @Override
@@ -136,5 +135,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
                    .collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
 
     }
+
+
 
 }

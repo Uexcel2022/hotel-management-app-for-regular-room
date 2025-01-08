@@ -1,5 +1,6 @@
 package com.uexcel.regular.service.impl;
 
+import com.uexcel.regular.constants.Constants;
 import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.dto.*;
 import com.uexcel.regular.exception.AppExceptions;
@@ -204,13 +205,6 @@ public class IReservationServiceImpl implements IReservationService {
     }
 
     @Override
-    public Reservation findReservationById(Long id) {
-        return reservationRepository.findById(id)
-                .orElseThrow(()->new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                        "Not Found","Reservation not found for the given id: "+id));
-    }
-
-    @Override
     public ResponseDto deletePastReservations(){
             List<Reservation> reservations = reservationRepository.findAll();
             if (reservations.isEmpty()) {
@@ -234,6 +228,17 @@ public class IReservationServiceImpl implements IReservationService {
             }
         return new ResponseDto(HttpStatus.OK.value(),
                 "Ok", "Reservation deleted successfully.");
+    }
+
+    @Override
+    public Reservation findByPhone(String phone) {
+        Reservation reservations = reservationRepository
+                .findReservationByPhone(phone);
+        if (reservations == null || reservations.getReservationDates().isEmpty()) {
+            throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
+                    Constants.NotFound, "No reservation for phone number: " + phone);
+        }
+        return reservations;
     }
 
 }

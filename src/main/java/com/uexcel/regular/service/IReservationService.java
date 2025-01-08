@@ -12,6 +12,6 @@ public interface IReservationService {
     List<FreeRoomsDto> getFreeRoomsByMonth(String monthNAme);
     List<FreeRoomsDto> getFreeRoomsByDays(Integer days);
     ReservationResponseDto saveReservation(ReservationDto reservationDto);
-    Reservation findReservationById(Long id);
     ResponseDto deletePastReservations();
+    Reservation findByPhone(String phone);
 }
