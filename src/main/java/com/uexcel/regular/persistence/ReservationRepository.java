@@ -11,7 +11,6 @@ import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     @Transactional

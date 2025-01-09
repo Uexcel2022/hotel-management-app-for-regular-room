@@ -30,11 +30,6 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
     public ReservedRoomInFoDto getRegularRoomByRoomNumber(String roomNumber) {
         List<ReservationDates> regularRoom =
                 regularRoomRepository.findByRoomNumberJpq(roomNumber);
-        if (regularRoom.isEmpty()) {
-            throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                    "Not Found","No reservation found for room number: " + roomNumber
-            );
-        }
         ReservedRoomInFoDto reservedRoomInFoDto =
                 rsvMapper.toReservedRoomInFoDto(regularRoom,new ReservedRoomInFoDto());
         return reservedRoomInFoDto;

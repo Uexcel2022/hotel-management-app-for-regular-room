@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
 @Repository
 public interface RegularRoomRepository extends JpaRepository<RegularRoom, Long> {
     @Query(value = "SELECT  d FROM  ReservationDates d WHERE d.regularRoom.roomNumber=:roomNumber ")

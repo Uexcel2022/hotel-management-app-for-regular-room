@@ -1,6 +1,7 @@
 package com.uexcel.regular.controller;
 
 import com.uexcel.regular.dto.ReservedRoomInFoDto;
+import com.uexcel.regular.exception.AppExceptions;
 import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.service.IRegularRoomService;
@@ -22,6 +23,11 @@ public class RegularRoomController {
             @RequestParam String roomNumber) {
         ReservedRoomInFoDto regularRoom =
                 regularRoomService.getRegularRoomByRoomNumber(roomNumber);
+        if (regularRoom.getId()==null) {
+            throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
+                    "Not Found","No reservation found for room number: " + roomNumber
+            );
+        }
         return new ResponseEntity<>(regularRoom, HttpStatus.OK);
     }
 }

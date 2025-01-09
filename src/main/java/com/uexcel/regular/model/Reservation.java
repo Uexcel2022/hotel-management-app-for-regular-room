@@ -20,6 +20,6 @@ public class Reservation {
     private String phone;
     private String description;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "reservation",fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "reservation",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<ReservationDates> reservationDates;
 }
