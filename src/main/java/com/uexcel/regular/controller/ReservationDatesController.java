@@ -2,7 +2,6 @@ package com.uexcel.regular.controller;
 
 import com.uexcel.regular.constants.Constants;
 import com.uexcel.regular.dto.ResponseDto;
-import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.ReservationDateRepository;
@@ -22,7 +21,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ReservationDatesController {
     private final IReservationDatesService reservationDatesService;
-    private final ReservationRepository reservationRepository;
     private  final ReservationDateRepository reservationDateRepository;
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDto> getReservationDates(@PathVariable("id") Long id){

@@ -2,8 +2,6 @@ package com.uexcel.regular.controller;
 
 import com.uexcel.regular.dto.ReservedRoomInFoDto;
 import com.uexcel.regular.exception.AppExceptions;
-import com.uexcel.regular.model.RegularRoom;
-import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.service.IRegularRoomService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -62,7 +62,7 @@ public class ICheckinImpl implements ICheckinService {
     public ResponseDto checkout(Long checkinId) {
         Checkin toUpdate = checkinRepository.findById(checkinId)
                 .orElseThrow(() -> new AppExceptions(HttpStatus.BAD_REQUEST.value(),
-                    Constants.BadRequest, String.format("No checkin found for CheckId: ", checkinId)));
+                    Constants.BadRequest, String.format("No checkin found for CheckId:  %s", checkinId)));
 
         if(toUpdate.getDateOut()!=null){
             throw  new AppExceptions(
