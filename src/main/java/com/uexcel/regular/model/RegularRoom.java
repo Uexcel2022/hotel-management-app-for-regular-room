@@ -1,5 +1,6 @@
 package com.uexcel.regular.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class RegularRoom {
     @Column(unique = true,nullable = false)
     private String roomNumber;
     private double price;
-    @OneToMany(mappedBy = "regularRoom",fetch = FetchType.EAGER,cascade = CascadeType.PERSIST)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "regularRoom",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<ReservationDates> reservationDates;
 }

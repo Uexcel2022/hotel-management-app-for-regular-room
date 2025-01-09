@@ -44,7 +44,7 @@ public class ReservationController {
     }
 
     @DeleteMapping("/reservation")
-    private ResponseEntity<ResponseDto> deleteReservation(){
+    private ResponseEntity<ResponseDto> deletePastReservations(){
         ResponseDto rs = reservationService.deletePastReservations();
         return  ResponseEntity.status(rs.getStatus()).body(rs);
     }

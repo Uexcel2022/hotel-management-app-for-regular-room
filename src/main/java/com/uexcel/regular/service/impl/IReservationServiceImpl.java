@@ -148,7 +148,6 @@ public class IReservationServiceImpl implements IReservationService {
                continue;
            }
            int reservations = reservedDates.size();
-//           int  intendToBeReserved = booking.getNumberOfRooms();
             int intendToBeReserved = booking.getRooms().size();
            if(numberOfRooms - (reservations + intendToBeReserved) < 0){
                unAvailableDates.add(
@@ -163,32 +162,28 @@ public class IReservationServiceImpl implements IReservationService {
             rDto.getInfo().addAll(unAvailableDates);
             return rDto;
         }
-       Reservation reservation = new Reservation();
-        reservation.setName(reservationDto.getName());
-        reservation.setPhone(reservationDto.getPhone());
-        reservation.setDescription("regular");
-       Reservation savedReservation = reservationRepository.save(reservation);
-       if(savedReservation.getId() == null){
-           throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-                   "Fail", "Fail to save reservation.");
-       }
-        List<ReservationDates> reservationDates = new ArrayList<>();
-        reservationDto.getDates().forEach(res -> {
-            for(int i = 0; i< res.getRooms().size(); i++) {
-                ReservationDates reservationDate = new ReservationDates();
-                reservationDate.setDate(res.getDate());
-                reservationDate.setReservation(savedReservation);
-                RegularRoom room =
-                        regularRoomService.getRegularRoomByRoomNumber(res.getRooms().get(i));
 
-                if(room.getReservationDates().stream().anyMatch(v->v.getDate().equals(res.getDate())) )
-                {
-                    dateRoomsDtos.add(new DateRoomsDto(res.getDate(),List.of(res.getRooms().get(i))));
-                }
-                reservationDate.setRegularRoom(room);
-                reservationDates.add(reservationDate);
+        /*
+            checking for existing reservation if found add the current reservation to it
+            (to maintain phone number unique constraint the reservation table) else create new reservation.
+         */
+        Reservation savedReservation = reservationRepository
+                .findReservationByPhone(reservationDto.getPhone());
+        if(savedReservation == null) {
+            Reservation reservation = new Reservation();
+            reservation.setName(reservationDto.getName());
+            reservation.setPhone(reservationDto.getPhone());
+            reservation.setDescription("regular");
+            savedReservation = reservationRepository.save(reservation);
+            if (savedReservation.getId() == null) {
+                throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                        "Fail", "Fail to save reservation.");
+
             }
-        });
+        }
+
+        List<ReservationDates> reservationDates = getReservationDates(reservationDto, savedReservation, dateRoomsDtos);
+
         if(dateRoomsDtos.size() > 0){
             throw new ReservedRoomException(dateRoomsDtos);
         }
@@ -241,4 +236,25 @@ public class IReservationServiceImpl implements IReservationService {
         return reservations;
     }
 
+    private  List<ReservationDates>  getReservationDates(
+            ReservationDto reservationDto, Reservation savedReservation, List<DateRoomsDto> dateRoomsDtos){
+        List<ReservationDates> reservationDates = new ArrayList<>();
+        reservationDto.getDates().forEach(res -> {
+            for(int i = 0; i< res.getRooms().size(); i++) {
+                ReservationDates reservationDate = new ReservationDates();
+                reservationDate.setDate(res.getDate());
+                reservationDate.setReservation(savedReservation);
+                RegularRoom room = new RegularRoom();
+//                        regularRoomService.getRegularRoomByRoomNumber(res.getRooms().get(i));
+
+                if(room.getReservationDates().stream().anyMatch(v->v.getDate().equals(res.getDate())) )
+                {
+                    dateRoomsDtos.add(new DateRoomsDto(res.getDate(),List.of(res.getRooms().get(i))));
+                }
+                reservationDate.setRegularRoom(room);
+                reservationDates.add(reservationDate);
+            }
+        });
+        return reservationDates;
+    }
 }

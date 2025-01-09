@@ -1,6 +1,8 @@
 package com.uexcel.regular.controller;
 
+import com.uexcel.regular.dto.ReservedRoomInFoDto;
 import com.uexcel.regular.model.RegularRoom;
+import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.service.IRegularRoomService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegularRoomController {
     private final IRegularRoomService regularRoomService;
     @GetMapping("reservation/room")
-    public ResponseEntity<RegularRoom> getRegularRoomById(
+    public ResponseEntity<ReservedRoomInFoDto> getRegularRoomById(
             @RequestParam String roomNumber) {
-        RegularRoom regularRoom =
+        ReservedRoomInFoDto regularRoom =
                 regularRoomService.getRegularRoomByRoomNumber(roomNumber);
         return new ResponseEntity<>(regularRoom, HttpStatus.OK);
     }

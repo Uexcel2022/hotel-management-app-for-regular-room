@@ -29,8 +29,8 @@ public class ICheckinImpl implements ICheckinService {
     private  final RegularRoomRepository regularRoomRepository;
     @Override
     public ResponseDto checkin(CheckinRequestDto checkinRequestDto) {
-        RegularRoom regularRoom =
-                regularRoomService.getRegularRoomByRoomNumber(checkinRequestDto.getRoomNumber());
+        RegularRoom regularRoom = new RegularRoom();
+//                regularRoomService.getRegularRoomByRoomNumber(checkinRequestDto.getRoomNumber());
 
         Checkin notCheckin = checkinRepository
                 .findByRegularRoom_RoomNumberAndDateOut(checkinRequestDto.getRoomNumber(), null);

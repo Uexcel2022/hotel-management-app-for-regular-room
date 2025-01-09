@@ -2,7 +2,9 @@ package com.uexcel.regular.service.impl;
 
 import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.dto.AvailableRoomsDto;
+import com.uexcel.regular.dto.ReservedRoomInFoDto;
 import com.uexcel.regular.exception.AppExceptions;
+import com.uexcel.regular.mapper.GetRsvByRoomNumberMapper;
 import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.RegularRoomRepository;
@@ -22,17 +24,20 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor
 public class IRegularRoomServiceImpl implements IRegularRoomService {
     private final RegularRoomRepository regularRoomRepository;
+    private final GetRsvByRoomNumberMapper rsvMapper;
     private final Month month;
     @Override
-    public RegularRoom getRegularRoomByRoomNumber(String roomNumber) {
-        RegularRoom regularRoom =
-                regularRoomRepository.findByRoomNumber(roomNumber);
-        if (regularRoom == null) {
+    public ReservedRoomInFoDto getRegularRoomByRoomNumber(String roomNumber) {
+        List<ReservationDates> regularRoom =
+                regularRoomRepository.findByRoomNumberJpq(roomNumber);
+        if (regularRoom.isEmpty()) {
             throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                    "Not Found","No regular room found for room number: " + roomNumber
+                    "Not Found","No reservation found for room number: " + roomNumber
             );
         }
-        return regularRoom;
+        ReservedRoomInFoDto reservedRoomInFoDto =
+                rsvMapper.toReservedRoomInFoDto(regularRoom,new ReservedRoomInFoDto());
+        return reservedRoomInFoDto;
     }
 
     @Override
@@ -90,7 +95,8 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
                 && monthName.equalsIgnoreCase("JANUARY")){
             monthDate =  LocalDate.of(now.getYear()+1,1,1);
         }
-        if(monthDate.getDayOfYear() < now.getDayOfYear() && monthDate.getYear()==now.getYear()){
+        if(monthDate.getDayOfYear() < now.getDayOfYear() && monthDate.getYear()==now.getYear()
+                && ! monthDate.getMonth().equals(now.getMonth())){
             throw new AppExceptions(HttpStatus.BAD_REQUEST.value(),
                     "Bad Request","The desired month is not available."
             );
