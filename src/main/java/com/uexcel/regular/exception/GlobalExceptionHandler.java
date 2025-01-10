@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.uexcel.regular.service.ICheckinService.getTime;
 
@@ -25,12 +26,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Nullable
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
         Map<String, Object> errors = new LinkedHashMap<>();
-        for (FieldError fieldError : fieldErrors) {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
-        }
-        return ResponseEntity.badRequest().body(errors);
+        List<String> errorsList =   ex.getBindingResult().getFieldErrors()
+                .stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
+        errors.put("errors", errorsList);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(AppExceptions.class)
     public ResponseEntity<ErrorResponseDto> handleAppException(AppExceptions ex, WebRequest request) {

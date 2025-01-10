@@ -19,8 +19,11 @@ public interface ReservationDateRepository extends JpaRepository<ReservationDate
     @Query(nativeQuery = true,value = "delete from reservation_dates where id = ?")
     @Override
    void deleteById(@Param("id") Long id);
+
     boolean existsById(Long id);
+
     @Query( value = "SELECT d FROM ReservationDates d WHERE  d.reservation.phone=:phoneNumber")
     List<ReservationDates> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+    List<ReservationDates> findByRegularRoom_RoomNumber(String roomNumber);
 
 }

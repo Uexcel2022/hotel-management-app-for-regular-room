@@ -4,12 +4,15 @@ import com.uexcel.regular.dto.FreeRoomsDto;
 import com.uexcel.regular.dto.ReservationDto;
 import com.uexcel.regular.dto.ReservationResponseDto;
 import com.uexcel.regular.dto.ResponseDto;
-import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.service.IReservationService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -19,11 +22,6 @@ import java.util.List;
 public class ReservationController {
     private final IReservationService reservationService;
 
-    @GetMapping("/reservation")
-    public ResponseEntity<Reservation>getReservationByPhone(@RequestParam String phone){
-       Reservation reservations = reservationService.findByPhone(phone);
-        return ResponseEntity.ok(reservations);
-    }
     @GetMapping("/days")
     public ResponseEntity<List<FreeRoomsDto>> roomCalendar(
             @RequestParam(required = false ) Integer numberOfDays){
@@ -32,13 +30,13 @@ public class ReservationController {
         return ResponseEntity.ok(freeRoomsDtoList);
     }
 
-    @GetMapping("/month/{monthName}")
-    public ResponseEntity<List<FreeRoomsDto>> roomCalendar(@PathVariable String monthName){
+    @GetMapping("/month")
+    public ResponseEntity<List<FreeRoomsDto>> roomCalendar(@RequestParam(required = false) String monthName){
         List<FreeRoomsDto> freeRoomsDtoList = reservationService.getFreeRoomsByMonth(monthName);
         return ResponseEntity.ok(freeRoomsDtoList);
     }
     @PostMapping("/reservation")
-    public ResponseEntity<ReservationResponseDto> saveReservation(@RequestBody ReservationDto reservationDto){
+    public ResponseEntity<ReservationResponseDto> saveReservation(@RequestBody @Valid ReservationDto reservationDto){
       ReservationResponseDto rRDto =  reservationService.saveReservation(reservationDto);
       return ResponseEntity.status(rRDto.getStatus()).body(rRDto);
     }

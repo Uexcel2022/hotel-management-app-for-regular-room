@@ -14,6 +14,7 @@ public class CheckinMapper {
     public Checkin toCheckin(Checkin checkin, CheckinRequestDto checkinRequestDto) {
         checkin.setName(checkinRequestDto.getName());
         checkin.setPhone(checkinRequestDto.getPhone());
+        checkin.setNumberOfDays(checkinRequestDto.getNumberOfDays());
         checkin.setDateIn(getTime());
         return checkin;
     }
@@ -26,6 +27,7 @@ public class CheckinMapper {
         checkinResponseDto.setName(checkin.getName());
         checkinResponseDto.setPhone(checkin.getPhone());
         checkinResponseDto.setAmount(checkin.getAmount());
+        checkinResponseDto.setNumberOfDays(checkin.getNumberOfDays());
         return checkinResponseDto;
     }
 }

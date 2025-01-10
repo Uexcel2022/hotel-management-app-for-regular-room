@@ -9,6 +9,7 @@ public class CheckinResponseDto {
     private  String roomNumber;
     private String dateIn;
     private String dateOut;
+    private Integer numberOfDays;
     private String name;
     private String phone;
     private double amount;

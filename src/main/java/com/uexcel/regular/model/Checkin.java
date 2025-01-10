@@ -10,6 +10,7 @@ public class Checkin {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     public  Long id;
+    private Integer NumberOfDays;
     private String dateIn;
     private String dateOut;
     private String name;

@@ -5,12 +5,13 @@ import com.uexcel.regular.constants.Month;
 import com.uexcel.regular.dto.*;
 import com.uexcel.regular.exception.AppExceptions;
 import com.uexcel.regular.exception.ReservedRoomException;
+import com.uexcel.regular.model.Checkin;
 import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
+import com.uexcel.regular.persistence.CheckinRepository;
 import com.uexcel.regular.persistence.ReservationDateRepository;
 import com.uexcel.regular.persistence.ReservationRepository;
-import com.uexcel.regular.service.IRegularRoomService;
 import com.uexcel.regular.service.IReservationService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -28,17 +29,27 @@ import java.util.List;
 public class IReservationServiceImpl implements IReservationService {
     private  final ReservationRepository reservationRepository;
     private  final ReservationDateRepository reservationDateRepository;
-    private  final IRegularRoomService regularRoomService;
+    private  final CheckinRepository checkinRepository;
     private final Month month;
     private final Environment environment;
 
     @Override
     public List<FreeRoomsDto> getFreeRoomsByMonth(String monthName) {
-        LocalDate now = LocalDate.now();
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
-            throw  new RuntimeException("Environment property 'NUMBER_OF_ROOMS' not set.");
+            throw  new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                    Constants.Failed,"Environment property 'NUMBER_OF_ROOMS' not set.");
         }
-        int numberOfRooms =Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+        LocalDate now = LocalDate.now();
+        if(monthName == null){
+            monthName = LocalDate.now().getMonth().toString();
+        }
+        int numberOfRooms;
+                try {
+                    numberOfRooms =  Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+                }catch (NumberFormatException e){
+                        throw  new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                                Constants.Failed,"Environment property 'NUMBER_OF_ROOMS' not integer.");
+                }
         List<Reservation> reservations = reservationRepository.findAll();
         List<LocalDate> reservedDates = new ArrayList<>();
         List<FreeRoomsDto> freeRoomsDtoList =  new ArrayList<>();
@@ -69,11 +80,12 @@ public class IReservationServiceImpl implements IReservationService {
         }
 
         int mothLength = monthStartDate.lengthOfMonth();
-
         for(int i = 0; i < mothLength; i ++){
             LocalDate date = monthStartDate.plusDays(i);
-            if(monthDates.contains(date) && !freeRoomsDtoList.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
-                int numberOfRoomsReserved = monthDates.stream().filter(present->present.equals(date)).toList().size();
+            if(monthDates.contains(date) && !freeRoomsDtoList.contains(date) &&
+                    (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
+                int numberOfRoomsReserved =
+                        monthDates.stream().filter(present->present.equals(date)).toList().size();
                 int freeRooms = numberOfRooms - numberOfRoomsReserved;
                 if(freeRooms > 0) {
                     freeRoomsDtoList.add(new FreeRoomsDto(date,freeRooms));
@@ -91,12 +103,18 @@ public class IReservationServiceImpl implements IReservationService {
     public List<FreeRoomsDto> getFreeRoomsByDays(Integer numberOfDays) {
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
             throw  new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-                    "Fail", "Environment property 'NUMBER_OF_ROOMS' not set.");
+                    Constants.Failed, "Environment property 'NUMBER_OF_ROOMS' not set.");
         }
-        int numberOfRooms =Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+        int numberOfRooms;
+        try {
+            numberOfRooms = Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+        }catch(NumberFormatException e){
+            throw  new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
+                    "Environment property 'NUMBER_OF_ROOMS' not an integer.");
+        }
         List<Reservation> reservations = reservationRepository.findAll();
         if(numberOfDays == null){
-            numberOfDays = 60;
+            numberOfDays = 30;
         }
         List<LocalDate> reserveDates = new ArrayList<>();
         List<FreeRoomsDto> freeRoomsDtoList =  new ArrayList<>();
@@ -108,8 +126,10 @@ public class IReservationServiceImpl implements IReservationService {
 
         for(int i = 0; i < numberOfDays; i++){
             LocalDate date = LocalDate.now().plusDays(i);
-            if(!freeRoomsDtoList.contains(date) && reserveDates.contains(date) && (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
-                int numberOfRoomsReserved =  reserveDates.stream().filter(present->present.equals(date)).toList().size();
+            if(!freeRoomsDtoList.contains(date) && reserveDates.contains(date) &&
+                    (date.equals(LocalDate.now())|| date.isAfter(LocalDate.now()))){
+                int numberOfRoomsReserved =
+                        reserveDates.stream().filter(present->present.equals(date)).toList().size();
                 int freeRooms = numberOfRooms - numberOfRoomsReserved;
                 if(freeRooms > 0) {
                     freeRoomsDtoList.add(new FreeRoomsDto(date,freeRooms));
@@ -127,9 +147,10 @@ public class IReservationServiceImpl implements IReservationService {
     @Transactional
     public ReservationResponseDto saveReservation(ReservationDto reservationDto) {
         if(environment.getProperty("NUMBER_OF_ROOMS")==null){
-            throw  new RuntimeException("Environment property 'NUMBER_OF_ROOMS' not set.");
+            throw  new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                    Constants.Failed, "Environment property 'NUMBER_OF_ROOMS' not set.");
         }
-        List<DateRoomsDto> dateRoomsDtos = new ArrayList<>();
+
         /*
              Getting previous booking from DB by Date. Each date represents booking per room
              The total number of date of same day represents total reserved room for the given date.
@@ -137,7 +158,14 @@ public class IReservationServiceImpl implements IReservationService {
              Else if the total number + the intended reservations exceeds the number of room for the given date,
              or any of the rooms mentioned is reserved on same date reservation fails else it passes.
          */
-        int numberOfRooms =Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+        List<DateRoomsDto> dateRoomsDtos = new ArrayList<>();
+        int numberOfRooms;
+        try {
+            numberOfRooms = Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
+        }catch(NumberFormatException e){
+            throw  new AppExceptions(HttpStatus.NO_CONTENT.value(), Constants.BadRequest,
+                    "Environment property 'NUMBER_OF_ROOMS' not an integer.");
+        }
         List<FreeRoomsDto> unAvailableDates = new ArrayList<>();
         DateRoomsDto booking;
         for(int i = 0; i < reservationDto.getDates().size();i++){
@@ -164,8 +192,8 @@ public class IReservationServiceImpl implements IReservationService {
         }
 
         /*
-            checking for existing reservation if found add the current reservation to it
-            (to maintain phone number unique constraint the reservation table) else create new reservation.
+            checking for existing reservation if found add the current reservation to it.
+            (to maintain phone number unique constraint in the reservation table) else create new reservation.
          */
         Reservation savedReservation = reservationRepository
                 .findReservationByPhone(reservationDto.getPhone());
@@ -187,13 +215,13 @@ public class IReservationServiceImpl implements IReservationService {
         if(dateRoomsDtos.size() > 0){
             throw new ReservedRoomException(dateRoomsDtos);
         }
-      List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);
-        for(ReservationDates rs : savedResDates){
-            if(rs.getId() ==null){
-                throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-                        "Fail", "Fail to save reservation dates.");
-            }
-        }
+//      List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);
+//        for(ReservationDates rs : savedResDates){
+//            if(rs.getId() ==null){
+//                throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+//                        Constants.Failed, "Fail to save reservation dates.");
+//            }
+//        }
         return new ReservationResponseDto(
                 HttpStatus.CREATED.value(), "Created",
                 "Reservation created successfully.");
@@ -208,6 +236,9 @@ public class IReservationServiceImpl implements IReservationService {
             }
             for (Reservation r : reservations) {
                 List<ReservationDates> reservationDatesDate = r.getReservationDates();
+                /*
+                   if reservation has n reservation date delete
+                 */
                 int rSize = reservationDatesDate.size();
                 if(rSize==0){
                     reservationRepository.deleteById(r.getId());
@@ -225,28 +256,38 @@ public class IReservationServiceImpl implements IReservationService {
                 "Ok", "Reservation deleted successfully.");
     }
 
-    @Override
-    public Reservation findByPhone(String phone) {
-        Reservation reservations = reservationRepository
-                .findReservationByPhone(phone);
-        if (reservations == null || reservations.getReservationDates().isEmpty()) {
-            throw new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                    Constants.NotFound, "No reservation for phone number: " + phone);
-        }
-        return reservations;
-    }
-
     private  List<ReservationDates>  getReservationDates(
             ReservationDto reservationDto, Reservation savedReservation, List<DateRoomsDto> dateRoomsDtos){
         List<ReservationDates> reservationDates = new ArrayList<>();
+        /*
+             Streaming and creating obj of the intended reserved dates from the customer
+         */
         reservationDto.getDates().forEach(res -> {
             for(int i = 0; i< res.getRooms().size(); i++) {
                 ReservationDates reservationDate = new ReservationDates();
                 reservationDate.setDate(res.getDate());
                 reservationDate.setReservation(savedReservation);
-                RegularRoom room = new RegularRoom();
-//                        regularRoomService.getRegularRoomByRoomNumber(res.getRooms().get(i));
 
+                RegularRoom room =  reservationDateRepository.findByRegularRoom_RoomNumber(res.getRooms()
+                        .get(i)).removeLast().getRegularRoom();
+
+                /*
+                    checking if the room is checkin without reservation for the desired dates.
+                 */
+                Checkin checkin = checkinRepository
+                        .findByRegularRoom_RoomNumberAndDateOut(room.getRoomNumber(),null);
+                if(checkin != null){
+                    int numberOfDays = checkin.getNumberOfDays();
+                    String checkinDate = checkin.getDateIn().split(" ")[0];
+                    LocalDate duration = LocalDate.parse(checkinDate).plusDays(numberOfDays);
+                    if(!res.getDate().isAfter(duration)) {
+                        throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
+                                String.format("Room %s is not available within the period request.", room.getRoomNumber()));
+                    }
+                }
+                /*
+                    Checking if  the room(s) is/are reserved on the desired date;
+                 */
                 if(room.getReservationDates().stream().anyMatch(v->v.getDate().equals(res.getDate())) )
                 {
                     dateRoomsDtos.add(new DateRoomsDto(res.getDate(),List.of(res.getRooms().get(i))));

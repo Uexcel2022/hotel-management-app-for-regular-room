@@ -4,7 +4,6 @@ import com.uexcel.regular.dto.FreeRoomsDto;
 import com.uexcel.regular.dto.ReservationDto;
 import com.uexcel.regular.dto.ReservationResponseDto;
 import com.uexcel.regular.dto.ResponseDto;
-import com.uexcel.regular.model.Reservation;
 
 import java.util.List;
 
@@ -13,5 +12,4 @@ public interface IReservationService {
     List<FreeRoomsDto> getFreeRoomsByDays(Integer days);
     ReservationResponseDto saveReservation(ReservationDto reservationDto);
     ResponseDto deletePastReservations();
-    Reservation findByPhone(String phone);
 }

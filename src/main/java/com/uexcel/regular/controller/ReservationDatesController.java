@@ -5,7 +5,6 @@ import com.uexcel.regular.dto.ResponseDto;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.ReservationDateRepository;
-import com.uexcel.regular.persistence.ReservationRepository;
 import com.uexcel.regular.service.IReservationDatesService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
