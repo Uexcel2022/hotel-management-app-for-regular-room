@@ -1,6 +1,5 @@
 package com.uexcel.regular.controller;
 
-import com.uexcel.regular.constants.Constants;
 import com.uexcel.regular.dto.CheckinRequestDto;
 import com.uexcel.regular.dto.CheckinResponseDto;
 import com.uexcel.regular.dto.ErrorResponseDto;
@@ -17,19 +16,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@Tag(name = "REST APIs For Checkin CRUD Operation For Regular Rooms",
-        description = "The REST APIs For checkin related CRUD operations")
+@Tag(name = "REST APIs For Checkin CRUD Operations For Regular Rooms.",
+        description = "The REST APIs For checkin related CRUD operations.")
 @RestController
 @AllArgsConstructor
 @Validated
 @RequestMapping(value = "/api/checkin",produces = MediaType.APPLICATION_JSON_VALUE)
 public class CheckinController {
     private  final ICheckinService checkinService;
-    @Operation(summary = "The API to Checkin Customer to Regular Room",
+    @Operation(summary = "The API to Checkin Customer to Regular Room.",
             description = "Regular Room API for Checkin of Customer.",
             responses = {
             @ApiResponse(
@@ -57,7 +55,7 @@ public class CheckinController {
         return new ResponseEntity<>(rs, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "The API to Checkout Customer to Regular Room",
+    @Operation(summary = "The API to Checkout Customer to Regular Room.",
             description = "Regular Room API for Checkout of Customer.",
             responses = {
                     @ApiResponse(
@@ -85,7 +83,7 @@ public class CheckinController {
         return new ResponseEntity<>(rs, HttpStatus.OK);
     }
 
-    @Operation(summary = "The API to get Checkin  Room checkin Information",
+    @Operation(summary = "The API to get Checkin  Room checkin Information.",
             description = "Regular Room API for A Room Checkin information .",
             responses = {
                     @ApiResponse(

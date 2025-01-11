@@ -163,7 +163,7 @@ public class IReservationServiceImpl implements IReservationService {
         try {
             numberOfRooms = Integer.parseInt(environment.getProperty("NUMBER_OF_ROOMS"));
         }catch(NumberFormatException e){
-            throw  new AppExceptions(HttpStatus.NO_CONTENT.value(), Constants.BadRequest,
+            throw  new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
                     "Environment property 'NUMBER_OF_ROOMS' not an integer.");
         }
         List<FreeRoomsDto> unAvailableDates = new ArrayList<>();
