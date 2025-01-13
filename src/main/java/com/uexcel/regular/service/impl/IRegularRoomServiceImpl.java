@@ -70,7 +70,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
         availableRoomsDto.sort(Comparator.comparing(AvailableRoomsDto::getDate));
 
              return   availableRoomsDto.stream().
-                     collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
+                     collect(groupingBy(AvailableRoomsDto::getRoom, LinkedHashMap::new,toList()));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
         availableRoomsDto.sort(Comparator.comparing(AvailableRoomsDto::getDate));
 
            return   availableRoomsDto.stream()
-                   .collect(groupingBy(AvailableRoomsDto::getRooms, LinkedHashMap::new,toList()));
+                   .collect(groupingBy(AvailableRoomsDto::getRoom, LinkedHashMap::new,toList()));
 
     }
 

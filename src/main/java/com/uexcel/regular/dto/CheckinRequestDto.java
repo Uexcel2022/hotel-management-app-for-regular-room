@@ -1,11 +1,12 @@
 package com.uexcel.regular.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
-
+@Schema(name ="CheckinRequest",description = "This Schema will hold info for checking in customer.")
 @Getter @Setter
 public class CheckinRequestDto {
     @NotNull(message = "Room number is required.")

@@ -1,5 +1,6 @@
 package com.uexcel.regular.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +11,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
-
+@Schema(name ="DateRooms",description = "This Schema will hold date and list of rooms.")
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor

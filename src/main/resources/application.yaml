@@ -10,3 +10,28 @@ spring:
     hibernate:
       ddl-auto: ${DDL_AUTO:update}
     show-sql: ${SHOW_SQL:true}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:8180/realms/eazybankdev/protocol/openid-connect/certs"
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_URL:http://localhost:8180/realms/eazybankdev/protocol/openid-connect/auth}
+  token-url: ${KEYCLOAK_TOKEN_URL:http://localhost:8180/realms/eazybankdev/protocol/openid-connect/token}
+
+#paths:
+#  /api/v1/products:
+#    get:
+#      security:
+#          - my_oAuth_security_schema:
+#            - read_access
+#securitySchemes:
+#  my_oAuth_security_schema:
+#    type: oauth2
+#    flows:
+#      implicit:
+#        authorizationUrl: http://localhost:8180/realms/eazybankdev/protocol/openid-connect/auth
+#        scopes:
+#          read_access: read data
+#          write_access: modify data

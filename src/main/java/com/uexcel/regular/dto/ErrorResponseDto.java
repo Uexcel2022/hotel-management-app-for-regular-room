@@ -1,8 +1,9 @@
 package com.uexcel.regular.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
+@Schema(name ="ErrorResponse",description = "This Schema will hold error details.")
 @AllArgsConstructor
 @Getter
 public class ErrorResponseDto {

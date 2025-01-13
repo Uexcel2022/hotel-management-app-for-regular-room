@@ -1,6 +1,7 @@
 package com.uexcel.regular.dto;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -9,7 +10,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-
+@Schema(name ="Reservation",description = "This Schema will hold details for reservation.")
 @Getter
 @Setter
 public class ReservationDto {

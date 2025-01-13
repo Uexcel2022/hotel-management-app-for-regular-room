@@ -1,8 +1,9 @@
 package com.uexcel.regular.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
-
+@Schema(name ="CheckinResponse",description = "This Schema will hold checkin details.")
 @Getter @Setter
 public class CheckinResponseDto {
     private Long id;

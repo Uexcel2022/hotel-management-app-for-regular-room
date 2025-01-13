@@ -1,4 +1,6 @@
 package com.uexcel.regular.constants;
+import com.uexcel.regular.exception.AppExceptions;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,6 +24,11 @@ public class Month {
         monthNames.put("OCTOBER",LocalDate.of(year,10,1));
         monthNames.put("NOVEMBER",LocalDate.of(year,11,1));
         monthNames.put("DECEMBER",LocalDate.of(year,12,1));
-        return monthNames.get(monthName);
+        LocalDate nameOfMonth = monthNames.get(monthName);
+        if(nameOfMonth == null) {
+            throw new AppExceptions(
+                    HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,"Invalid month name: " + monthName);
+        }
+        return nameOfMonth;
     }
 }
