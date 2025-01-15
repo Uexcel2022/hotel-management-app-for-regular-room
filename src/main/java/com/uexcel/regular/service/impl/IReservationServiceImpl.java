@@ -214,7 +214,7 @@ public class IReservationServiceImpl implements IReservationService {
 
         List<ReservationDates> reservationDates = getReservationDates(reservationDto, savedReservation, dateRoomsDtos);
 
-        if(dateRoomsDtos.size() > 0){
+        if(!dateRoomsDtos.isEmpty()){
             throw new ReservedRoomException(dateRoomsDtos);
         }
       List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);

@@ -2,7 +2,6 @@ package com.uexcel.regular.controller;
 
 import com.uexcel.regular.constants.Constants;
 import com.uexcel.regular.dto.ErrorResponseDto;
-import com.uexcel.regular.dto.FreeRoomsDto;
 import com.uexcel.regular.dto.ResponseDto;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;

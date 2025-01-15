@@ -21,7 +21,7 @@ public class IReservationDatesServiceImpl implements IReservationDatesService {
         ReservationDates reservationDates =
                 reservationDateRepository.findById(reservationDateId)
                 .orElseThrow(()-> new AppExceptions(HttpStatus.NOT_FOUND.value(),
-                        Constants.NotFound,"" + "No reservation found for Id: "+reservationDateId));
+                        Constants.NotFound, "No reservation found for Id: "+reservationDateId));
         reservationDates.getReservation().getReservationDates().remove(reservationDates);
 
         if(reservationDates.getReservation().getReservationDates().isEmpty()){
