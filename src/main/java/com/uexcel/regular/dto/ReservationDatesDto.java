@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class ReservationDatesDto {
     @NotNull
     @NotEmpty
-    private Long id;
+    private String id;
     @FutureOrPresent
     private LocalDate date;
 }

@@ -5,6 +5,7 @@ import com.uexcel.regular.dto.*;
 import com.uexcel.regular.exception.AppExceptions;
 import com.uexcel.regular.mapper.CheckinMapper;
 import com.uexcel.regular.model.Checkin;
+import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.CheckinRepository;
 import com.uexcel.regular.persistence.RegularRoomRepository;
@@ -27,15 +28,27 @@ public class ICheckinImpl implements ICheckinService {
     @Override
     public ResponseDto checkin(CheckinRequestDto checkinRequestDto) {
         List<ReservationDates> rsvDates = regularRoomRepository
-                .findByRoomNumberJpq(checkinRequestDto.getRoomNumber());
+                .findByRoomNumberJpql(checkinRequestDto.getRoomNumber());
+        RegularRoom room;
         if(!rsvDates.isEmpty()){
-           boolean isFree = rsvDates.stream().anyMatch(v->v.getDate().equals(LocalDate.now()));
-           boolean isReservedWithPhoneNumber = rsvDates.getFirst().getReservation().getPhone()
-                   .equals(checkinRequestDto.getPhone());
-           if(isFree && !isReservedWithPhoneNumber){
-                throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
-                       String.format("Room %s is on reservation.", checkinRequestDto.getRoomNumber()));
+
+            room = rsvDates.getFirst().getRegularRoom();  //getting the room details.
+
+           ReservationDates  rsvDate  =
+                   rsvDates.stream().filter(v->v.getDate().equals(LocalDate.now())).findFirst().get();
+
+           if(rsvDate != null){
+               if(!rsvDate.getReservation().getPhone().equals(checkinRequestDto.getPhone())) {
+                   throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
+                           String.format("Room %s is on reservation.", checkinRequestDto.getRoomNumber()));
+               }
            }
+        } else {
+            room = regularRoomRepository.findByRoomNumber(checkinRequestDto.getRoomNumber());
+            if(room == null){
+                throw new AppExceptions(HttpStatus.NOT_FOUND.value(), Constants.NotFound,
+                        String.format("No regular room with roomNumber: %s ", checkinRequestDto.getRoomNumber()));
+            }
         }
 
         Checkin notCheckin = checkinRepository
@@ -46,9 +59,10 @@ public class ICheckinImpl implements ICheckinService {
                     Constants.BadRequest,String.format("Room %s is in use.", checkinRequestDto.getRoomNumber())
             );
         }
+
         Checkin checkin =  checkinMapper.toCheckin(new Checkin(), checkinRequestDto);
-        checkin.setAmount(rsvDates.getFirst().getRegularRoom().getPrice());
-        checkin.setRegularRoom(rsvDates.getLast().getRegularRoom());
+        checkin.setAmount(room.getPrice());
+        checkin.setRegularRoom(room);
         Checkin savedCheckin =  checkinRepository.save(checkin);
         if(savedCheckin.getId() == null) {
             throw  new AppExceptions(

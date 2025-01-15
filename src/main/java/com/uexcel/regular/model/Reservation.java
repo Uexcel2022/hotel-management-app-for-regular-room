@@ -12,8 +12,8 @@ import java.util.List;
 @Setter
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     @Column(nullable = false)
     private String name;
     @Column(nullable = false,unique = true)

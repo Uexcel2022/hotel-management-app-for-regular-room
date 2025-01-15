@@ -50,7 +50,7 @@ public class ReservationDatesController {
     )
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto> getReservationDates(@PathVariable("id") Long id){
+    public ResponseEntity<ResponseDto> DeleteReservationDates(@PathVariable("id") String id){
         reservationDatesService.deleteReservationDateById(id);
         return new ResponseEntity<>(new ResponseDto(HttpStatus.OK.value(),
                 Constants.OK,"Reservation deleted successfully."),HttpStatus.OK);

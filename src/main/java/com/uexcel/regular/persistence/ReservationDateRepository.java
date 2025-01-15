@@ -12,15 +12,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface ReservationDateRepository extends JpaRepository<ReservationDates,Long> {
+public interface ReservationDateRepository extends JpaRepository<ReservationDates,String> {
     List<ReservationDates> findByDate(LocalDate date);
     @Transactional
     @Modifying
     @Query(nativeQuery = true,value = "delete from reservation_dates where id = ?")
     @Override
-   void deleteById(@Param("id") Long id);
+   void deleteById(@Param("id") String id);
 
-    boolean existsById(Long id);
+    boolean existsById(String id);
 
     @Query( value = "SELECT d FROM ReservationDates d WHERE  d.reservation.phone=:phoneNumber")
     List<ReservationDates> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);

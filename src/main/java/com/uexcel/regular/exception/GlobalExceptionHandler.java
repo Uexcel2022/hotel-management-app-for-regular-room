@@ -2,6 +2,7 @@ package com.uexcel.regular.exception;
 
 import com.uexcel.regular.dto.ErrorResponseDto;
 import com.uexcel.regular.dto.ReservedErrorResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.uexcel.regular.service.ICheckinService.getTime;
-
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Nullable
@@ -49,6 +50,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleExceptions(Exception ex, WebRequest request) {
+        log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(new ErrorResponseDto(getTime(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error", ex.getMessage(),request.getDescription(false))

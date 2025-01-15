@@ -29,7 +29,7 @@ public class IRegularRoomServiceImpl implements IRegularRoomService {
     @Override
     public ReservedRoomInFoDto getRegularRoomByRoomNumber(String roomNumber) {
         List<ReservationDates> regularRoom =
-                regularRoomRepository.findByRoomNumberJpq(roomNumber);
+                regularRoomRepository.findByRoomNumberJpql(roomNumber);
            return   rsvMapper.toReservedRoomInFoDto(regularRoom,new ReservedRoomInFoDto());
     }
 

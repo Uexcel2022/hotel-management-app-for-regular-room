@@ -11,8 +11,8 @@ import java.time.LocalDate;
 @ToString
 public class ReservationDates {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private LocalDate date;
     @ManyToOne(optional = false,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Reservation reservation;

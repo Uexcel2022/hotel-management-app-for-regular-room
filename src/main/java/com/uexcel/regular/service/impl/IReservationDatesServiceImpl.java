@@ -17,7 +17,7 @@ public class IReservationDatesServiceImpl implements IReservationDatesService {
     private final ReservationDateRepository reservationDateRepository;
     private final ReservationRepository reservationRepository;
     @Override
-    public void deleteReservationDateById(Long reservationDateId) {
+    public void deleteReservationDateById(String reservationDateId) {
         ReservationDates reservationDates =
                 reservationDateRepository.findById(reservationDateId)
                 .orElseThrow(()-> new AppExceptions(HttpStatus.NOT_FOUND.value(),

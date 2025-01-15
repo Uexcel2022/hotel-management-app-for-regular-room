@@ -10,6 +10,7 @@ import com.uexcel.regular.model.RegularRoom;
 import com.uexcel.regular.model.Reservation;
 import com.uexcel.regular.model.ReservationDates;
 import com.uexcel.regular.persistence.CheckinRepository;
+import com.uexcel.regular.persistence.RegularRoomRepository;
 import com.uexcel.regular.persistence.ReservationDateRepository;
 import com.uexcel.regular.persistence.ReservationRepository;
 import com.uexcel.regular.service.IReservationService;
@@ -32,6 +33,7 @@ public class IReservationServiceImpl implements IReservationService {
     private  final CheckinRepository checkinRepository;
     private final Month month;
     private final Environment environment;
+    private final RegularRoomRepository regularRoomRepository;
 
     @Override
     public List<FreeRoomsDto> getFreeRoomsByMonth(String monthName) {
@@ -205,7 +207,7 @@ public class IReservationServiceImpl implements IReservationService {
             savedReservation = reservationRepository.save(reservation);
             if (savedReservation.getId() == null) {
                 throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-                        "Fail", "Fail to save reservation.");
+                        Constants.Failed, "Fail to save reservation.");
 
             }
         }
@@ -215,13 +217,13 @@ public class IReservationServiceImpl implements IReservationService {
         if(dateRoomsDtos.size() > 0){
             throw new ReservedRoomException(dateRoomsDtos);
         }
-//      List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);
-//        for(ReservationDates rs : savedResDates){
-//            if(rs.getId() ==null){
-//                throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
-//                        Constants.Failed, "Fail to save reservation dates.");
-//            }
-//        }
+      List<ReservationDates> savedResDates =  reservationDateRepository.saveAll(reservationDates);
+        for(ReservationDates rs : savedResDates){
+            if(rs.getId() ==null){
+                throw new AppExceptions(HttpStatus.EXPECTATION_FAILED.value(),
+                        Constants.Failed, "Fail to save reservation dates.");
+            }
+        }
         return new ReservationResponseDto(
                 HttpStatus.CREATED.value(), "Created",
                 "Reservation created successfully.");
@@ -263,39 +265,42 @@ public class IReservationServiceImpl implements IReservationService {
              Streaming and creating obj of the intended reserved dates from the customer
          */
         reservationDto.getDates().forEach(res -> {
-            for(int i = 0; i< res.getRooms().size(); i++) {
+            for(int i = 0; i < res.getRooms().size(); i++) {
+
                 ReservationDates reservationDate = new ReservationDates();
-                reservationDate.setDate(res.getDate());
-                reservationDate.setReservation(savedReservation);
 
-                RegularRoom room =  reservationDateRepository.findByRegularRoom_RoomNumber(res.getRooms()
-                        .get(i)).removeLast().getRegularRoom();
-
+                RegularRoom room =  regularRoomRepository.findByRoomNumber(res.getRooms().get(i));
+                if(room == null){
+                    throw new AppExceptions(HttpStatus.NOT_FOUND.value(), Constants.NotFound,
+                            String.format("No room found with roomNumber: %s", res.getRooms().get(i)));
+                }
                 /*
                     checking if the room is checkin without reservation for the desired dates.
                  */
-                Checkin checkin = checkinRepository
-                        .findByRegularRoom_RoomNumberAndDateOut(room.getRoomNumber(),null);
-                if(checkin != null){
-                    int numberOfDays = checkin.getNumberOfDays();
-                    String checkinDate = checkin.getDateIn().split(" ")[0];
-                    LocalDate duration = LocalDate.parse(checkinDate).plusDays(numberOfDays);
-                    if(!res.getDate().isAfter(duration)) {
-                        throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
-                                String.format("Room %s is not available within the period request.", room.getRoomNumber()));
+                    Checkin checkin = checkinRepository
+                            .findByRegularRoom_RoomNumberAndDateOut(room.getRoomNumber(), null);
+                    if (checkin != null) {
+                        int numberOfDays = checkin.getNumberOfDays();
+                        String checkinDate = checkin.getDateIn().split(" ")[0];
+                        LocalDate duration = LocalDate.parse(checkinDate).plusDays(numberOfDays);
+                        if (!res.getDate().isAfter(duration)) {
+                            throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
+                                    String.format("Room %s is not available within the period request.", room.getRoomNumber()));
+                        }
                     }
-                }
                 /*
                     Checking if  the room(s) is/are reserved on the desired date;
                  */
-                if(room.getReservationDates().stream().anyMatch(v->v.getDate().equals(res.getDate())) )
-                {
-                    dateRoomsDtos.add(new DateRoomsDto(res.getDate(),List.of(res.getRooms().get(i))));
-                }
-                reservationDate.setRegularRoom(room);
-                reservationDates.add(reservationDate);
+                    if (room != null && room.getReservationDates().stream().anyMatch(v -> v.getDate().equals(res.getDate()))) {
+                        dateRoomsDtos.add(new DateRoomsDto(res.getDate(), List.of(res.getRooms().get(i))));
+                    }
+                    reservationDate.setDate(res.getDate());
+                    reservationDate.setReservation(savedReservation);
+                    reservationDate.setRegularRoom(room);
+                    reservationDates.add(reservationDate);
             }
         });
+
         return reservationDates;
     }
 }

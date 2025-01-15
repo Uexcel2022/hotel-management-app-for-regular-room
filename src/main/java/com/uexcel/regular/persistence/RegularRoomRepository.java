@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface RegularRoomRepository extends JpaRepository<RegularRoom, Long> {
     @Query(value = "SELECT  d FROM  ReservationDates d WHERE d.regularRoom.roomNumber=:roomNumber ")
-    List<ReservationDates> findByRoomNumberJpq (@Param("roomNumber") String roomNumber);
+    List<ReservationDates> findByRoomNumberJpql(@Param("roomNumber") String roomNumber);
     boolean existsByRoomNumber ( String roomNumber);
-    List<RegularRoom> findByRoomNumber (String roomNumber);
+    RegularRoom findByRoomNumber (String roomNumber);
 }

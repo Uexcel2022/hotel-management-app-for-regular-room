@@ -35,19 +35,18 @@ public class SecurityConfig {
                 config.addAllowedHeader("*");
                 config.addAllowedMethod("*");
                 config.addExposedHeader("Authorization");
-                config.addExposedHeader("Access-Control-Allow-Origin");
                 config.setMaxAge(3600L);
                 return config;
             }
         }))
                 .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests.requestMatchers("/api/checkin/**").hasRole("ADMIN")
-                        .requestMatchers("api/free/room/**").hasAnyRole("ADMIN","USER")
-                        .requestMatchers("api/regular/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers("/api/free/room/**").hasAnyRole("ADMIN","USER")
+                        .requestMatchers("/api/regular/**").hasAnyRole("ADMIN","USER")
                         .requestMatchers("/api/reservation/**").hasAnyRole("ADMIN","USER")
                         .requestMatchers(HttpMethod.PUT).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE).hasRole("ADMIN")
-                        .requestMatchers("/swagger-ui/**","/api-docs/**","/v3/api-doc*/**").permitAll()
+                        .requestMatchers("/swagger-ui/**","/api-docs/**","/v3/api-doc*/**","/error").permitAll()
         )
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
