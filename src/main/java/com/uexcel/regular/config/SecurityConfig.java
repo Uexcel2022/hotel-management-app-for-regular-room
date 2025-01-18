@@ -1,6 +1,7 @@
 package com.uexcel.regular.config;
 
 import com.uexcel.regular.converter.KeyCloakRoleConverter;
+import com.uexcel.regular.filter.CsrfCookieFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
@@ -39,6 +41,7 @@ public class SecurityConfig {
                 return config;
             }
         }))
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests.requestMatchers("/api/checkin/**").hasRole("ADMIN")
                         .requestMatchers("/api/free/room/**").hasAnyRole("ADMIN","USER")
@@ -53,7 +56,9 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(resourceServer ->resourceServer.jwt(
-                jwtConfigurer ->jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter) ));
+                jwtConfigurer ->jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)))
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.accessDeniedHandler(new CustomAccessDenied()));
 
         return http.build();
     }

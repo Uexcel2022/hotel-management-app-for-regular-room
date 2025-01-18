@@ -27,40 +27,49 @@ public class ICheckinImpl implements ICheckinService {
     private  final RegularRoomRepository regularRoomRepository;
     @Override
     public ResponseDto checkin(CheckinRequestDto checkinRequestDto) {
+        Checkin inUse = checkinRepository
+                .findByRegularRoom_RoomNumberAndDateOut(checkinRequestDto.getRoomNumber(), null);
+        if (inUse != null) {
+            throw new AppExceptions(
+                    HttpStatus.BAD_REQUEST.value(),
+                    Constants.BadRequest, String.format("Room %s is in use.", checkinRequestDto.getRoomNumber())
+            );
+        }
+        /*
+           checking number of days intended to be checked in and checking if  is free
+            or the customer actually have reservations for the number days intended.
+         */
+        List<LocalDate> intendedCheckinDates = new ArrayList<>();
+        int checkinNumberOfDays = checkinRequestDto.getNumberOfDays();
+        for (int i = 0; i < checkinNumberOfDays; i++) {
+            intendedCheckinDates.add(LocalDate.now().plusDays(i));
+        }
+
         List<ReservationDates> rsvDates = regularRoomRepository
                 .findByRoomNumberJpql(checkinRequestDto.getRoomNumber());
-        RegularRoom room;
-        if(!rsvDates.isEmpty()){
 
-            room = rsvDates.getFirst().getRegularRoom();  //getting the room details.
-
-           ReservationDates  rsvDate  =
-                   rsvDates.stream().filter(v->v.getDate().equals(LocalDate.now())).findFirst().get();
-
-           if(rsvDate != null){
-               if(!rsvDate.getReservation().getPhone().equals(checkinRequestDto.getPhone())) {
-                   throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
-                           String.format("Room %s is on reservation.", checkinRequestDto.getRoomNumber()));
-               }
-           }
-        } else {
-            room = regularRoomRepository.findByRoomNumber(checkinRequestDto.getRoomNumber());
-            if(room == null){
-                throw new AppExceptions(HttpStatus.NOT_FOUND.value(), Constants.NotFound,
-                        String.format("No regular room with roomNumber: %s ", checkinRequestDto.getRoomNumber()));
+        RegularRoom room = null;
+        for (LocalDate checkinDate : intendedCheckinDates) {
+            if (!rsvDates.isEmpty()) {
+                room = rsvDates.getFirst().getRegularRoom();  //getting the room details.
+                ReservationDates rsvDate =
+                        rsvDates.stream().filter(v -> v.getDate().equals(checkinDate)).findFirst().orElse(null);
+                if (rsvDate != null) {
+                    if (!rsvDate.getReservation().getPhone().equals(checkinRequestDto.getPhone())) {
+                        throw new AppExceptions(HttpStatus.BAD_REQUEST.value(), Constants.BadRequest,
+                                String.format("Room %s is on reservation this date: %s", checkinRequestDto.getRoomNumber(), checkinDate));
+                    }
+                }
+            } else {
+                room = regularRoomRepository.findByRoomNumber(checkinRequestDto.getRoomNumber());
+                if (room == null) {
+                    throw new AppExceptions(HttpStatus.NOT_FOUND.value(), Constants.NotFound,
+                            String.format("No regular room with roomNumber: %s ", checkinRequestDto.getRoomNumber()));
+                }
             }
         }
 
-        Checkin notCheckin = checkinRepository
-                .findByRegularRoom_RoomNumberAndDateOut(checkinRequestDto.getRoomNumber(), null);
-        if (notCheckin != null) {
-            throw  new AppExceptions(
-                    HttpStatus.BAD_REQUEST.value(),
-                    Constants.BadRequest,String.format("Room %s is in use.", checkinRequestDto.getRoomNumber())
-            );
-        }
-
-        Checkin checkin =  checkinMapper.toCheckin(new Checkin(), checkinRequestDto);
+        Checkin checkin = checkinMapper.toCheckin(new Checkin(), checkinRequestDto);
         checkin.setAmount(room.getPrice());
         checkin.setRegularRoom(room);
         Checkin savedCheckin =  checkinRepository.save(checkin);

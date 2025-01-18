@@ -12,7 +12,7 @@
 	<artifactId>regular</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>regular</name>
-	<description>Hotel Demo Project</description>
+	<description>Regular Room Microservice</description>
 	<url/>
 	<licenses>
 		<license/>
