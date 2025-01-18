@@ -18,7 +18,7 @@ public class CustomAccessDenied implements AccessDeniedHandler {
            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
            String msg = (accessDeniedException.getMessage() != null && accessDeniedException.getMessage()!=null ) ?
                    accessDeniedException.getMessage() : "Authentication failed";
-           String jsonResponse = String.format("{\"timestamp\": %s\"status\": %s\"error\": \"%s\"message\": %s\"apiPath\": \"%s\"}",
+           String jsonResponse = String.format("{\"timestamp\": \"%s\",\"status\": \"%s\",\"error\": \"%s\",\"message\": \"%s\",\"apiPath\": \"%s\"}",
                    getTime(), HttpStatus.FORBIDDEN.value(),HttpStatus.FORBIDDEN.getReasonPhrase(),msg, request.getRequestURI());
         response.setContentType("application/json,charset=utf-8");
         response.getWriter().write(jsonResponse);
